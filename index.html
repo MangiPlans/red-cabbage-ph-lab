@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Cabbage pH Lab</title>
+<style>
+:root {
+ --site-primary: #4b2678;
+ --site-secondary: #d9f0e7;
+ --site-background: #f6f4fb;
+ --site-on-primary: #ffffff;
+ --site-on-secondary: #173d35;
+ --site-on-background: #211b2a;
+ --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+ --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+ --site-heading-scale: 1;
+ --site-spacing-scale: 1;
+ --site-radius-scale: 1;
+ --site-decoration-opacity: 1;
+ color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: light-dark(#f6f4fb,#15121c); color: light-dark(#211b2a,#f4effb); }
+#app { min-height:100vh; width:100%; border-radius:0; background-color: var(--site-background); color:var(--site-on-background); }
+.hero { background:var(--site-primary); color:var(--site-on-primary); padding:calc(30px * var(--site-spacing-scale)) max(20px, calc((100vw - 1120px)/2)); position:relative; overflow:hidden; }
+.hero:after { content:""; position:absolute; width:240px;height:240px;border:34px solid rgba(255,255,255,.09);border-radius:50%;right:8%;top:-100px;opacity:var(--site-decoration-opacity);pointer-events:none; }
+.eyebrow { text-transform:uppercase; letter-spacing:.15em; font-size:.76rem; font-weight:800; opacity:.85; }
+h1,h2,h3 { font-family:var(--site-font-heading); line-height:1.15; }
+h1 { font-size:calc(clamp(2rem,5vw,3.5rem) * var(--site-heading-scale)); margin:.4rem 0 .7rem; }
+.hero p { max-width:760px; line-height:1.6; margin:0; font-size:1.05rem; }
+main { max-width:1120px; margin:auto; padding:calc(24px * var(--site-spacing-scale)); }
+.topline { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 20px; }
+.pill { border:1px solid light-dark(#ded4ec,#51465e); border-radius:999px; padding:7px 12px; font-size:.85rem; font-weight:700; background:light-dark(#fff,#211c2a); }
+.notice { background:light-dark(#fff4d9,#3b2d15); border-left:5px solid #d18b17; padding:14px 16px; border-radius:calc(12px * var(--site-radius-scale)); margin:0 0 22px; line-height:1.5; }
+.layout { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr); gap:20px; align-items:start; }
+.panel { background:light-dark(#fff,#211c2a); border:1px solid light-dark(#e5deee,#3e3548); border-radius:calc(18px * var(--site-radius-scale)); padding:calc(20px * var(--site-spacing-scale)); box-shadow:0 5px 22px rgba(34,18,55,.05); }
+.panel h2 { font-size:calc(1.35rem * var(--site-heading-scale)); margin:0 0 8px; }
+.sub { color:light-dark(#62596d,#c1b7ce); line-height:1.5; margin:0 0 18px; }
+.samples { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.sample { border:1px solid light-dark(#e3dbea,#51465d); background:light-dark(#fcfaff,#292332); color:inherit; border-radius:12px; padding:12px; text-align:left; cursor:pointer; min-height:76px; display:flex; align-items:center; gap:10px; font:inherit; transition:transform .15s,border-color .15s; }
+.sample:hover { transform:translateY(-1px); border-color:var(--site-primary); }
+.sample[aria-pressed="true"] { outline:3px solid var(--site-primary); outline-offset:1px; border-color:transparent; }
+.sample .num { width:29px;height:29px; flex:0 0 29px; display:grid;place-items:center;border-radius:9px;background:var(--site-secondary);color:var(--site-on-secondary);font-weight:800;font-size:.82rem; }
+.sample strong { display:block; font-size:.94rem; }
+.sample small { display:block; margin-top:3px; color:light-dark(#70657b,#c6bbd0); font-size:.78rem; }
+.labarea { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:center; margin:15px 0; }
+.tube-wrap { min-height:215px; display:grid;place-items:center; background:light-dark(#f8f4fc,#191520); border-radius:14px; position:relative; overflow:hidden; }
+.tube { width:76px; height:160px; border:4px solid light-dark(#a8a4b2,#b7b0c2); border-top:0; border-radius:0 0 27px 27px; position:relative; overflow:hidden; background:rgba(255,255,255,.18); box-shadow:inset 8px 0 12px rgba(255,255,255,.25), 5px 8px 12px rgba(20,10,30,.08); }
+.tube:before { content:""; position:absolute; top:0; left:-5px; right:-5px; height:8px; background:light-dark(#a8a4b2,#b7b0c2); border-radius:5px; z-index:2; }
+.liquid { position:absolute; bottom:0; left:0; right:0; height:70%; background:#a34baf; transition:background .5s,height .4s; border-radius:0 0 22px 22px; }
+.bubbles { position:absolute; inset:20px 10px 0; opacity:.55; background:radial-gradient(circle at 30% 45%,#fff 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,#fff 0 3px,transparent 4px),radial-gradient(circle at 45% 72%,#fff 0 2px,transparent 3px); }
+.tube-label { position:absolute; bottom:12px; left:8px; right:8px; text-align:center; font-size:.78rem; font-weight:700; color:light-dark(#62596d,#c1b7ce); }
+.controls { display:flex; gap:9px; flex-wrap:wrap; margin-top:12px; }
+button.action { border:0; border-radius:10px; padding:11px 15px; font:inherit; font-weight:800; cursor:pointer; background:var(--site-primary); color:var(--site-on-primary); }
+button.action.secondary { background:var(--site-secondary);color:var(--site-on-secondary); }
+button:focus-visible { outline:3px solid #e09c25;outline-offset:3px; }
+.result { border-radius:14px; padding:15px; background:light-dark(#f5f0fb,#30283a); min-height:104px; }
+.result .big { font-size:1.6rem;font-weight:900; margin:4px 0; }
+.scale { display:grid; grid-template-columns:repeat(12,1fr); gap:3px; margin:12px 0 6px; }
+.scale span { height:14px;border-radius:4px; }
+.scale-labels { display:flex;justify-content:space-between;font-size:.76rem;color:light-dark(#62596d,#c1b7ce); }
+.data-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:.9rem; }
+.data-table th,.data-table td { padding:10px 7px;text-align:left;border-bottom:1px solid light-dark(#e7e0ef,#453b50); }
+.data-table th { font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:light-dark(#62596d,#c1b7ce); }
+.swatch { display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;margin-right:5px;border:1px solid #8886; }
+.empty { color:light-dark(#746a7e,#c8bed1); font-style:italic; }
+.footer { text-align:center; font-size:.82rem; color:light-dark(#6b6175,#b9afc5); padding:10px 20px 30px; }
+@media(max-width:780px){.layout{grid-template-columns:1fr}.hero{padding:28px 22px}main{padding:16px}.labarea{grid-template-columns:1fr 1fr}.samples{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:430px){.samples{grid-template-columns:1fr}.labarea{grid-template-columns:1fr}.tube-wrap{min-height:190px}}
+</style>
+</head>
+<body>
+<div id="app" data-sites-preview-theme="custom">
+<header class="hero"><div class="eyebrow">Virtual chemistry investigation</div><h1>Red Cabbage pH Lab</h1><p>Test 12 everyday household samples with a natural indicator. Choose a sample, add the red cabbage juice, and observe how the test tube changes color to estimate pH.</p></header>
+<main>
+<div class="topline"><span class="pill">⏱ 10–15 minutes</span><span class="pill">🧪 12 samples</span><span class="pill">📊 Record your evidence</span></div>
+<div class="notice"><strong>Safety first:</strong> This is a virtual simulation. Do not mix household cleaners or recreate the cleaner tests at home. Never mix bleach, ammonia, acids, or other cleaning products. If doing a real cabbage-indicator activity, use only teacher-approved food samples and follow your teacher’s directions.</div>
+<div class="layout">
+<section class="panel"><h2>1. Choose a household sample</h2><p class="sub">Select one sample from the list. The sample will appear in the test tube.</p><div class="samples" id="samples"></div></section>
+<section class="panel"><h2>2. Run the test</h2><p class="sub">First select a sample, then add the cabbage indicator to reveal its simulated color and approximate pH.</p>
+<div class="labarea"><div class="tube-wrap"><div class="tube" aria-label="Simulated test tube"><div class="liquid" id="liquid"></div><div class="bubbles" id="bubbles" hidden></div></div><div class="tube-label" id="tubeLabel">Choose a sample</div></div><div><div class="result" aria-live="polite" id="result"><strong>Waiting for sample</strong><p class="sub" style="margin:6px 0 0">Your observation will appear here.</p></div><div class="scale" id="scale" aria-label="pH color scale"></div><div class="scale-labels"><span>Acidic · pH 2</span><span>Neutral · 7</span><span>Basic · 12</span></div></div></div>
+<div class="controls"><button class="action" id="addIndicator">Add cabbage juice</button><button class="action secondary" id="reset">Reset tube</button></div>
+<p class="sub" style="margin:14px 0 0;font-size:.86rem">Color is a teaching approximation. Real pH and color can vary with product formulation, dilution, lighting, and indicator concentration.</p>
+</section>
+</div>
+<section class="panel" style="margin-top:20px"><h2>3. Results notebook</h2><p class="sub">After testing a sample, record what you observed. The table below updates automatically.</p><div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Sample</th><th>Observed color</th><th>Estimated pH</th><th>Type</th></tr></thead><tbody id="resultsBody"><tr><td colspan="4" class="empty">No samples tested yet. Choose a sample and add cabbage juice.</td></tr></tbody></table></div><div class="controls"><button class="action secondary" id="downloadCsv">Download results CSV</button><button class="action secondary" id="clearResults">Clear results</button></div></section>
+<section class="panel" style="margin-top:20px"><h2>Think like a scientist</h2><ol style="line-height:1.7;padding-left:22px"><li>Which sample was the most acidic? What color showed this?</li><li>Which samples were close to neutral?</li><li>Which cleaning-related samples appeared basic?</li><li>Why is red cabbage juice called an indicator?</li><li>What could make a real test's color differ from this simulation?</li></ol><p class="sub" style="margin-bottom:0"><strong>Remember:</strong> pH below 7 is acidic, pH 7 is neutral, and pH above 7 is basic (alkaline).</p></section>
+</main><div class="footer">Red Cabbage pH Lab · Classroom simulation · Estimated values are illustrative, not product measurements.</div>
+</div>
+<script>
+const samples = [
+ {id:1,name:'Lemon juice',kind:'Food',ph:2.2,color:'#e53c59',colorName:'Red-pink',type:'Acidic',desc:'Citric acid gives lemon juice a low pH.'},
+ {id:2,name:'White vinegar',kind:'Food / pantry',ph:2.8,color:'#ed5369',colorName:'Pink-red',type:'Acidic',desc:'Acetic acid makes vinegar acidic.'},
+ {id:3,name:'Cola soda',kind:'Drink',ph:3.0,color:'#e85a83',colorName:'Pink-magenta',type:'Acidic',desc:'Acids in cola lower its pH.'},
+ {id:4,name:'Orange juice',kind:'Drink',ph:3.6,color:'#d75bb2',colorName:'Magenta',type:'Acidic',desc:'Fruit acids make orange juice acidic.'},
+ {id:5,name:'Black coffee',kind:'Drink',ph:5.0,color:'#9c6bc8',colorName:'Purple',type:'Acidic',desc:'Coffee is mildly acidic.'},
+ {id:6,name:'Milk',kind:'Food',ph:6.5,color:'#806bc1',colorName:'Violet',type:'Slightly acidic',desc:'Milk is usually slightly acidic.'},
+ {id:7,name:'Water',kind:'Everyday liquid',ph:7.0,color:'#6d70bd',colorName:'Blue-violet',type:'Neutral (approx.)',desc:'Pure water is neutral at about pH 7.'},
+ {id:8,name:'Baking soda solution',kind:'Pantry',ph:8.3,color:'#398cc5',colorName:'Blue',type:'Basic',desc:'Dissolved baking soda makes a mildly basic solution.'},
+ {id:9,name:'Dish soap solution',kind:'Cleaning product',ph:8.8,color:'#269dba',colorName:'Blue-teal',type:'Basic (approx.)',desc:'Many dish soaps are mildly basic; formulations vary.'},
+ {id:10,name:'Hand soap solution',kind:'Cleaning product',ph:9.2,color:'#23a98e',colorName:'Teal-green',type:'Basic (approx.)',desc:'Many soaps are mildly basic; products vary.'},
+ {id:11,name:'Laundry detergent solution',kind:'Cleaning product',ph:10.0,color:'#36ad68',colorName:'Green',type:'Basic (approx.)',desc:'Many laundry detergents are alkaline. Virtual sample only.'},
+ {id:12,name:'Ammonia-based glass cleaner',kind:'Cleaner · virtual only',ph:11.0,color:'#8dbb35',colorName:'Yellow-green',type:'Basic (approx.)',desc:'Some glass cleaners are alkaline. Do not recreate or mix cleaner tests at home.'}
+];
+const $ = id => document.getElementById(id);
+let selected = null;
+let tested = {};
+const samplesEl = $('samples');
+const scaleColors = ['#e83b56','#ed526e','#e95b91','#dc5cb0','#b05fc1','#8c6bc4','#6d70bd','#4d82c5','#3299c0','#24a99e','#35ae73','#8dbb35'];
+scaleColors.forEach(c=>{const s=document.createElement('span');s.style.background=c;$('scale').appendChild(s)});
+samples.forEach(s=>{const b=document.createElement('button');b.className='sample';b.type='button';b.dataset.id=s.id;b.setAttribute('aria-pressed','false');b.innerHTML=`<span class="num">${s.id}</span><span><strong>${s.name}</strong><small>${s.kind}</small></span>`;b.addEventListener('click',()=>selectSample(s.id));samplesEl.appendChild(b)});
+function selectSample(id){selected=samples.find(s=>s.id===id);document.querySelectorAll('.sample').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.id)===id)));$('liquid').style.background='#a7a0b4';$('liquid').style.height='38%';$('bubbles').hidden=true;$('tubeLabel').textContent=selected.name;$('result').innerHTML=`<strong>${selected.name} selected</strong><p class="sub" style="margin:6px 0 0">Now add cabbage juice to reveal the simulated result.</p>`;$('addIndicator').disabled=false;}
+function addIndicator(){if(!selected){$('result').innerHTML='<strong>Choose a sample first</strong><p class="sub" style="margin:6px 0 0">Select one of the 12 household samples.</p>';return}const s=selected;$('liquid').style.background=s.color;$('liquid').style.height='72%';$('bubbles').hidden=false;$('result').innerHTML=`<strong>${s.name}</strong><div class="big">pH ≈ ${s.ph.toFixed(1)}</div><div><span class="swatch" style="background:${s.color}"></span><strong>${s.colorName}</strong> · ${s.type}</div><p class="sub" style="margin:8px 0 0">${s.desc}</p>`;tested[s.id]=s;renderTable();}
+function renderTable(){const body=$('resultsBody');const rows=Object.values(tested).sort((a,b)=>a.id-b.id);if(!rows.length){body.innerHTML='<tr><td colspan="4" class="empty">No samples tested yet. Choose a sample and add cabbage juice.</td></tr>';return}body.innerHTML=rows.map(s=>`<tr><td>${s.name}</td><td><span class="swatch" style="background:${s.color}"></span>${s.colorName}</td><td>${s.ph.toFixed(1)}</td><td>${s.type}</td></tr>`).join('')}
+$('addIndicator').addEventListener('click',addIndicator);
+$('reset').addEventListener('click',()=>{selected=null;document.querySelectorAll('.sample').forEach(b=>b.setAttribute('aria-pressed','false'));$('liquid').style.background='#a34baf';$('liquid').style.height='70%';$('bubbles').hidden=true;$('tubeLabel').textContent='Choose a sample';$('result').innerHTML='<strong>Waiting for sample</strong><p class="sub" style="margin:6px 0 0">Your observation will appear here.</p>';});
+$('clearResults').addEventListener('click',()=>{tested={};renderTable()});
+$('downloadCsv').addEventListener('click',()=>{const rows=[['Sample','Observed color','Estimated pH','Type'],...Object.values(tested).sort((a,b)=>a.id-b.id).map(s=>[s.name,s.colorName,s.ph.toFixed(1),s.type])];const csv=rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='red-cabbage-ph-results.csv';a.click();URL.revokeObjectURL(url)});
+</script>
+</body></html>
